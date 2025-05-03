@@ -173,3 +173,4 @@ C:\Users\Bünyamin YUSUFOĞLU\OneDrive - iste.edu.tr\KODLAMA\PROJELER\OnlineSurv
 C:\Users\Bünyamin YUSUFOĞLU\OneDrive - iste.edu.tr\KODLAMA\PROJELER\OnlineSurveyVotingSystem\Survey.API\Survey.API\obj\Debug\net8.0\Survey.API.pdb
 C:\Users\Bünyamin YUSUFOĞLU\OneDrive - iste.edu.tr\KODLAMA\PROJELER\OnlineSurveyVotingSystem\Survey.API\Survey.API\obj\Debug\net8.0\Survey.API.genruntimeconfig.cache
 C:\Users\Bünyamin YUSUFOĞLU\OneDrive - iste.edu.tr\KODLAMA\PROJELER\OnlineSurveyVotingSystem\Survey.API\Survey.API\obj\Debug\net8.0\ref\Survey.API.dll
+C:\Users\Bünyamin YUSUFOĞLU\OneDrive - iste.edu.tr\KODLAMA\PROJELER\OnlineSurveyVotingSystem\Survey.API\Survey.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
