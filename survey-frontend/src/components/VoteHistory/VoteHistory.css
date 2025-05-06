@@ -1,0 +1,65 @@
+/* VoteHistory.css */
+.vote-history-container {
+    background: linear-gradient(135deg, #6a11cb, #2575fc); /* Yumuşak renk geçişi */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .vote-history-content {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 80%;
+  }
+  
+  .vote-history-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .vote-history-empty {
+    text-align: center;
+    font-size: 1rem;
+    color: #777;
+  }
+  
+  .vote-card {
+    background-color: #f8f9fa;
+    border-left: 5px solid #28a745;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+  }
+  
+  .vote-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #212529;
+  }
+  
+  .vote-card-description {
+    font-size: 1rem;
+    color: #495057;
+    margin-bottom: 10px;
+  }
+  
+  .vote-card-option {
+    font-size: 1rem;
+    color: #155724;
+    background-color: #d4edda;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+  
+  .vote-card-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+  

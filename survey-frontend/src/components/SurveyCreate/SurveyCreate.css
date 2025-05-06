@@ -1,0 +1,68 @@
+/* SurveyCreate.css */
+  .create-container {
+    background: linear-gradient(135deg, #6a11cb, #2575fc); /* Yumuşak renk geçişi */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .create-form-container {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 80%;
+  }
+  
+  h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  input,
+  textarea {
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    transition: border-color 0.3s;
+  }
+  
+  input:focus,
+  textarea:focus {
+    border-color: #2575fc;
+    outline: none;
+  }
+  
+  button {
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1.1rem;
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #6a11cb;
+  }
+  
+  /* Error Message Style */
+  .text-danger {
+    font-size: 0.9rem;
+    color: #e74c3c;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  
