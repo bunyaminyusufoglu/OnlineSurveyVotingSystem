@@ -1,75 +1,133 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Survey.API.Data;
-using Survey.API.Models.Auth;
-using Survey.API.Models;
+using Survey.API.DTOs;
+using Survey.API.Models.Entities;
 using Survey.API.Services;
-using System.Text;
-using System.Security.Cryptography;
 
 namespace Survey.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly TokenService _tokenService;
+        private readonly IAuthService _authService;
 
-        public AuthController(AppDbContext context, TokenService tokenService)
+        public AuthController(IAuthService authService)
         {
-            _context = context;
-            _tokenService = tokenService;
+            _authService = authService;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Bu email adresi zaten kayıtlı.");
+                return BadRequest(new AuthResponse 
+                { 
+                    Success = false, 
+                    Message = "Geçersiz veri girişi." 
+                });
             }
 
             var user = new User
             {
-                FullName = request.FullName,
+                Username = request.Username,
                 Email = request.Email,
-                PasswordHash = HashPassword(request.Password),
                 Role = "User"
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var result = await _authService.RegisterAsync(user, request.Password);
 
-            return Ok("Kayıt başarılı.");
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-            if (user == null || user.PasswordHash != HashPassword(request.Password))
+            if (!result.success)
             {
-                return Unauthorized("Geçersiz email veya şifre.");
+                return BadRequest(new AuthResponse 
+                { 
+                    Success = false, 
+                    Message = result.message 
+                });
             }
 
-            var token = _tokenService.CreateToken(user);
-
-            return Ok(new AuthResponse
-            {
-                Token = token,
-                Email = user.Email,
-                Role = user.Role
+            return Ok(new AuthResponse 
+            { 
+                Success = true, 
+                Message = result.message,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Role = user.Role
+                }
             });
         }
 
-        private string HashPassword(string password)
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
         {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AuthResponse 
+                { 
+                    Success = false, 
+                    Message = "Geçersiz veri girişi." 
+                });
+            }
+
+            var result = await _authService.LoginAsync(request.Email, request.Password);
+
+            if (!result.success)
+            {
+                return Unauthorized(new AuthResponse 
+                { 
+                    Success = false, 
+                    Message = result.token 
+                });
+            }
+
+            var user = await _authService.GetUserByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return NotFound(new AuthResponse
+                {
+                    Success = false,
+                    Message = "Kullanıcı bulunamadı."
+                });
+            }
+
+            return Ok(new AuthResponse
+            {
+                Success = true,
+                Message = "Giriş başarılı.",
+                Token = result.token,
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Role = user.Role
+                }
+            });
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var user = await _authService.GetUserByIdAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(new UserDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role
+            });
         }
     }
 }

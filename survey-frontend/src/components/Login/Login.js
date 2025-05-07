@@ -17,19 +17,21 @@ function Login() {
     try {
       const response = await api.post('/Auth/login', form);
       const token = response.data.token;
-
+  
       localStorage.setItem('token', token);
-
+  
       const decodedToken = JSON.parse(atob(token.split('.')[1]));
       const username = decodedToken?.email || decodedToken?.name || 'Kullanıcı';
-
+  
       localStorage.setItem('username', username);
-
+  
       navigate('/');
     } catch (err) {
-      setError('Giriş başarısız! E-posta ya da şifre yanlış olabilir.');
+      console.error('Hata:', err.response?.data || err.message);
+      setError(`Giriş başarısız! ${err.response?.data?.message || 'E-posta ya da şifre yanlış olabilir.'}`);
     }
   };
+  
 
   return (
     <div className="login-container">

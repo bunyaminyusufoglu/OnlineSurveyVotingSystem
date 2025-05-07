@@ -9,11 +9,41 @@
     "Parameters": [
       {
         "Name": "request",
-        "Type": "Survey.API.Models.Auth.LoginRequest",
+        "Type": "Survey.API.DTOs.LoginRequest",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "Survey.API.DTOs.AuthResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Survey.API.Controllers.AuthController",
+    "Method": "GetCurrentUser",
+    "RelativePath": "api/Auth/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "Survey.API.DTOs.UserDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "Survey.API.Controllers.AuthController",
@@ -25,43 +55,120 @@
     "Parameters": [
       {
         "Name": "request",
-        "Type": "Survey.API.Models.Auth.RegisterRequest",
+        "Type": "Survey.API.DTOs.RegisterRequest",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "Survey.API.DTOs.AuthResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
-    "ContainingType": "Survey.API.Controllers.SurveysController",
+    "ContainingType": "Survey.API.Controllers.SurveyController",
+    "Method": "GetSurveys",
+    "RelativePath": "api/Survey",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Survey.API.Models.Entities.SurveyEntity, Survey.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Survey.API.Controllers.SurveyController",
     "Method": "CreateSurvey",
-    "RelativePath": "api/Surveys",
+    "RelativePath": "api/Survey",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
+        "Name": "surveyDto",
+        "Type": "Survey.API.Models.SurveyCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Survey.API.Models.Entities.SurveyEntity",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Survey.API.Controllers.SurveyController",
+    "Method": "GetSurvey",
+    "RelativePath": "api/Survey/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Survey.API.Models.Entities.SurveyEntity",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Survey.API.Controllers.SurveyController",
+    "Method": "UpdateSurvey",
+    "RelativePath": "api/Survey/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
         "Name": "survey",
-        "Type": "Survey.API.Models.Survey",
+        "Type": "Survey.API.Models.Entities.SurveyEntity",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Survey.API.Controllers.SurveysController",
-    "Method": "GetAll",
-    "RelativePath": "api/Surveys",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Survey.API.Controllers.SurveysController",
-    "Method": "GetById",
-    "RelativePath": "api/Surveys/{id}",
-    "HttpMethod": "GET",
+    "ContainingType": "Survey.API.Controllers.SurveyController",
+    "Method": "DeleteSurvey",
+    "RelativePath": "api/Survey/{id}",
+    "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -74,19 +181,44 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Survey.API.Controllers.SurveysController",
+    "ContainingType": "Survey.API.Controllers.SurveyController",
     "Method": "Vote",
-    "RelativePath": "api/Surveys/vote",
+    "RelativePath": "api/Survey/{surveyId}/vote",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "request",
+        "Name": "surveyId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "voteRequest",
         "Type": "Survey.API.Models.VoteRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Survey.API.Controllers.SurveyController",
+    "Method": "GetUserSurveys",
+    "RelativePath": "api/Survey/user",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Survey.API.Models.Entities.SurveyEntity, Survey.API, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

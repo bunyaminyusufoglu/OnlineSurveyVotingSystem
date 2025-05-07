@@ -11,8 +11,8 @@ using Survey.API.Data;
 
 namespace Survey.API.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20250503141108_InitialCreate")]
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20250507140430_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace Survey.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Survey.API.Models.Survey", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.SurveyEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,23 +36,27 @@ namespace Survey.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("Surveys");
                 });
 
-            modelBuilder.Entity("Survey.API.Models.SurveyOption", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.SurveyOption", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,12 +64,13 @@ namespace Survey.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("OptionText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("SurveyId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -74,7 +79,7 @@ namespace Survey.API.Migrations
                     b.ToTable("SurveyOptions");
                 });
 
-            modelBuilder.Entity("Survey.API.Models.User", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,13 +87,12 @@ namespace Survey.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -98,12 +102,20 @@ namespace Survey.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Survey.API.Models.Vote", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.Vote", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -111,7 +123,10 @@ namespace Survey.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("SurveyOptionId")
+                    b.Property<int>("OptionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SurveyId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
@@ -122,17 +137,29 @@ namespace Survey.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SurveyOptionId");
+                    b.HasIndex("OptionId");
 
-                    b.HasIndex("UserId", "SurveyOptionId")
-                        .IsUnique();
+                    b.HasIndex("SurveyId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Votes");
                 });
 
-            modelBuilder.Entity("Survey.API.Models.SurveyOption", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.SurveyEntity", b =>
                 {
-                    b.HasOne("Survey.API.Models.Survey", "Survey")
+                    b.HasOne("Survey.API.Models.Entities.User", "CreatedByUser")
+                        .WithMany("Surveys")
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+                });
+
+            modelBuilder.Entity("Survey.API.Models.Entities.SurveyOption", b =>
+                {
+                    b.HasOne("Survey.API.Models.Entities.SurveyEntity", "Survey")
                         .WithMany("Options")
                         .HasForeignKey("SurveyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -141,32 +168,49 @@ namespace Survey.API.Migrations
                     b.Navigation("Survey");
                 });
 
-            modelBuilder.Entity("Survey.API.Models.Vote", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.Vote", b =>
                 {
-                    b.HasOne("Survey.API.Models.SurveyOption", "SurveyOption")
+                    b.HasOne("Survey.API.Models.Entities.SurveyOption", "Option")
                         .WithMany("Votes")
-                        .HasForeignKey("SurveyOptionId")
+                        .HasForeignKey("OptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Survey.API.Models.User", "User")
-                        .WithMany()
+                    b.HasOne("Survey.API.Models.Entities.SurveyEntity", "Survey")
+                        .WithMany("Votes")
+                        .HasForeignKey("SurveyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Survey.API.Models.Entities.User", "User")
+                        .WithMany("Votes")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("SurveyOption");
+                    b.Navigation("Option");
+
+                    b.Navigation("Survey");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Survey.API.Models.Survey", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.SurveyEntity", b =>
                 {
                     b.Navigation("Options");
+
+                    b.Navigation("Votes");
                 });
 
-            modelBuilder.Entity("Survey.API.Models.SurveyOption", b =>
+            modelBuilder.Entity("Survey.API.Models.Entities.SurveyOption", b =>
                 {
+                    b.Navigation("Votes");
+                });
+
+            modelBuilder.Entity("Survey.API.Models.Entities.User", b =>
+                {
+                    b.Navigation("Surveys");
+
                     b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618

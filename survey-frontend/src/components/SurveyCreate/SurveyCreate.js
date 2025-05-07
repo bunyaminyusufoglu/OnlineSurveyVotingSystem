@@ -22,25 +22,72 @@ function SurveyCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    // Validate inputs
+    if (!title.trim()) {
+      setError('Başlık boş olamaz.');
+      return;
+    }
+
+    if (!description.trim()) {
+      setError('Açıklama boş olamaz.');
+      return;
+    }
+
     if (options.some(opt => opt.trim() === '')) {
       setError('Tüm seçenekleri doldurun.');
       return;
     }
 
+    // Prepare survey data according to API model
+    const surveyData = {
+      Title: title.trim(),
+      Description: description.trim(),
+      Options: options.map(opt => ({
+        OptionText: opt.trim()
+      }))
+    };
+
     try {
       const token = localStorage.getItem('token');
-      await api.post('/surveys', {
-        title,
-        description,
-        options
-      }, {
+      if (!token) {
+        setError('Oturum açmanız gerekiyor.');
+        return;
+      }
+
+      const response = await api.post('/surveys', surveyData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      navigate('/'); // Anketler sayfasına dön
+      if (response.status === 200) {
+        navigate('/');
+      }
     } catch (err) {
-      console.error(err);
-      setError('Anket oluşturulamadı.');
+      console.error("API Hatası: ", err.response ? err.response.data : err.message);
+      
+      if (err.response?.status === 401) {
+        setError('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
+      } else if (err.response?.data) {
+        // API'den gelen hata mesajını işle
+        if (typeof err.response.data === 'object') {
+          if (err.response.data.errors) {
+            // Validation errors
+            const validationErrors = Object.values(err.response.data.errors)
+              .flat()
+              .join(', ');
+            setError(validationErrors);
+          } else if (err.response.data.title) {
+            setError(err.response.data.title);
+          } else {
+            setError('Bir hata oluştu. Lütfen tüm alanları kontrol edin.');
+          }
+        } else {
+          setError(err.response.data);
+        }
+      } else {
+        setError('Anket oluşturulurken bir hata oluştu.');
+      }
     }
   };
 
@@ -86,7 +133,7 @@ function SurveyCreate() {
                 + Seçenek Ekle
             </button>
           </div>
-          {error && <div className="text-danger mb-2">{error}</div>}
+          {error && <div className="alert alert-danger">{error}</div>}
           <button className="btn btn-primary" type="submit">Anket Oluştur</button>
         </form>
       </div>
