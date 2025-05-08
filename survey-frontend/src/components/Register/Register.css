@@ -4,6 +4,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
   }
   
   .register-form-container {
@@ -13,12 +14,24 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 420px;
+    transition: transform 0.3s ease;
+  }
+  
+  .register-form-container:hover {
+    transform: translateY(-5px);
   }
   
   .register-form-container h2 {
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     color: #333;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  .register-form {
+    display: flex;
+    flex-direction: column;
   }
   
   .form-input {
@@ -27,12 +40,43 @@
     font-size: 1rem;
     border: 1px solid #ddd;
     margin-bottom: 15px;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
+    width: 100%;
   }
   
   .form-input:focus {
     border-color: #2575fc;
     outline: none;
+    box-shadow: 0 0 0 2px rgba(37, 117, 252, 0.1);
+  }
+  
+  .form-input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  .form-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: -10px;
+    margin-bottom: 15px;
+  }
+  
+  .text-danger {
+    font-size: 0.9rem;
+    color: #e74c3c;
+    font-weight: 500;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-radius: 5px;
   }
   
   .btn-register {
@@ -42,18 +86,19 @@
     background-color: #2575fc;
     color: white;
     border: none;
-    transition: background-color 0.3s ease;
-  }
-  
-  .btn-register:hover {
-    background-color: #6a11cb;
-  }
-  
-  .text-danger {
-    font-size: 0.9rem;
-    color: #e74c3c;
+    transition: all 0.3s ease;
     font-weight: 500;
-    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .btn-register:hover:not(:disabled) {
+    background-color: #6a11cb;
+    transform: translateY(-2px);
+  }
+  
+  .btn-register:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
   
   .mb-3 {
@@ -71,9 +116,11 @@
   
     .form-input {
       font-size: 0.9rem;
+      padding: 10px;
     }
   
     .btn-register {
       padding: 10px;
+      font-size: 1rem;
     }
   }

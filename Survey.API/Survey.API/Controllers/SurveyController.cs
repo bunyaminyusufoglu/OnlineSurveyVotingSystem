@@ -7,6 +7,7 @@ using Survey.API.Models.Entities;
 using Survey.API.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Survey.API.Controllers
 {
@@ -123,6 +124,35 @@ namespace Survey.API.Controllers
                 return BadRequest("Bu ankete daha önce oy verdiniz.");
 
             return Ok();
+        }
+
+        [HttpGet("votes/user")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<VoteHistoryDto>>> GetUserVotes()
+        {
+            var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+            var votes = await _context.Votes
+                .Include(v => v.Option)
+                    .ThenInclude(o => o.Survey)
+                        .ThenInclude(s => s.CreatedByUser)
+                .Where(v => v.UserId == userId)
+                .OrderByDescending(v => v.VotedAt)
+                .ToListAsync();
+
+            var userIds = votes.Select(v => v.Option.Survey.CreatedBy).Distinct().ToList();
+            var users = _context.Users.Where(u => userIds.Contains(u.Id)).ToList();
+
+            var voteDtos = votes.Select(v => new VoteHistoryDto
+            {
+                VoteId = v.Id,
+                VotedAt = v.VotedAt,
+                SurveyTitle = v.Option?.Survey?.Title ?? "",
+                SurveyDescription = v.Option?.Survey?.Description ?? "",
+                OptionText = v.Option?.Text ?? "",
+                CreatedByUsername = users.FirstOrDefault(u => u.Id == v.Option.Survey.CreatedBy)?.Username ?? "Anonim"
+            }).ToList();
+
+            return Ok(voteDtos);
         }
 
         private bool SurveyExists(int id)

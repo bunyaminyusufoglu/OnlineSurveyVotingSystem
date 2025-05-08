@@ -6,32 +6,48 @@ import './Login.css';
 function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError(''); // Her değişiklikte hata mesajını temizle
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
     try {
       const response = await api.post('/Auth/login', form);
-      const token = response.data.token;
-  
+      const { token, user } = response.data;
+
+      // Token'ı localStorage'a kaydet
       localStorage.setItem('token', token);
-  
-      const decodedToken = JSON.parse(atob(token.split('.')[1]));
-      const username = decodedToken?.email || decodedToken?.name || 'Kullanıcı';
-  
-      localStorage.setItem('username', username);
-  
+      
+      // Kullanıcı bilgilerini localStorage'a kaydet
+      localStorage.setItem('user', JSON.stringify({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }));
+
+      // API isteklerinde kullanılacak default header'ı ayarla
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
       navigate('/');
     } catch (err) {
-      console.error('Hata:', err.response?.data || err.message);
-      setError(`Giriş başarısız! ${err.response?.data?.message || 'E-posta ya da şifre yanlış olabilir.'}`);
+      console.error('Giriş hatası:', err);
+      setError(
+        err.response?.data?.message || 
+        'Giriş yapılırken bir hata oluştu. Lütfen bilgilerinizi kontrol edip tekrar deneyin.'
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
-  
 
   return (
     <div className="login-container">
@@ -39,29 +55,41 @@ function Login() {
         <h2 className="text-center mb-4">Giriş Yap</h2>
         <form onSubmit={handleSubmit} className="login-form">
           <div className="mb-3">
-            <label>Email</label>
+            <label htmlFor="email">E-posta</label>
             <input 
+              id="email"
               type="email" 
               name="email" 
               className="form-control form-input" 
+              value={form.email}
               onChange={handleChange} 
               required 
               placeholder="E-posta adresinizi girin"
+              disabled={isLoading}
             />
           </div>
           <div className="mb-3">
-            <label>Şifre</label>
+            <label htmlFor="password">Şifre</label>
             <input 
+              id="password"
               type="password" 
               name="password" 
               className="form-control form-input" 
+              value={form.password}
               onChange={handleChange} 
               required 
               placeholder="Şifrenizi girin"
+              disabled={isLoading}
             />
           </div>
           {error && <div className="text-danger mb-3">{error}</div>}
-          <button type="submit" className="btn btn-primary w-100 btn-login">Giriş Yap</button>
+          <button 
+            type="submit" 
+            className="btn btn-primary w-100 btn-login"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
+          </button>
         </form>
       </div>
     </div>

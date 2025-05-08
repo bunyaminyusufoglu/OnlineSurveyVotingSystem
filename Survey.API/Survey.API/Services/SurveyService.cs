@@ -37,6 +37,9 @@ namespace Survey.API.Services
         {
             return await _context.Surveys
                 .Include(s => s.Options)
+                .ThenInclude(o => o.Votes)
+                .Include(s => s.Votes)
+                .Include(s => s.CreatedByUser)
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
@@ -44,6 +47,9 @@ namespace Survey.API.Services
         {
             return await _context.Surveys
                 .Include(s => s.Options)
+                .ThenInclude(o => o.Votes)
+                .Include(s => s.Votes)
+                .Include(s => s.CreatedByUser)
                 .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();
         }
@@ -52,6 +58,9 @@ namespace Survey.API.Services
         {
             return await _context.Surveys
                 .Include(s => s.Options)
+                .ThenInclude(o => o.Votes)
+                .Include(s => s.Votes)
+                .Include(s => s.CreatedByUser)
                 .Where(s => s.CreatedBy == userId)
                 .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();

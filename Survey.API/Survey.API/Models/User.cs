@@ -20,6 +20,10 @@ namespace Survey.API.Models.Entities
         public string PasswordHash { get; set; }
 
         [Required]
+        [JsonIgnore]
+        public string PasswordSalt { get; set; }
+
+        [Required]
         public string Role { get; set; }
 
         [JsonIgnore]

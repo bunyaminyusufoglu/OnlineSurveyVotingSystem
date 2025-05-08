@@ -19,10 +19,8 @@ namespace Survey.API.Models.Entities
 
         public virtual ICollection<SurveyOption> Options { get; set; }
         
-        [JsonIgnore]
         public virtual ICollection<Vote> Votes { get; set; }
         
-        [JsonIgnore]
         public virtual User CreatedByUser { get; set; }
     }
 }

@@ -16,7 +16,6 @@ namespace Survey.API.Models.Entities
         [JsonIgnore]
         public virtual SurveyEntity Survey { get; set; }
         
-        [JsonIgnore]
         public virtual ICollection<Vote> Votes { get; set; }
     }
 }

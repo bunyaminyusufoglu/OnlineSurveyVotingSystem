@@ -14,11 +14,39 @@ namespace Survey.API.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly TokenService _tokenService;
+        private const int SaltSize = 16;
+        private const int HashSize = 20;
+        private const int Iterations = 10000;
 
         public AuthService(ApplicationDbContext context, TokenService tokenService)
         {
             _context = context;
             _tokenService = tokenService;
+        }
+
+        private string HashPassword(string password, out byte[] salt)
+        {
+            salt = new byte[SaltSize];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations))
+            {
+                byte[] hash = pbkdf2.GetBytes(HashSize);
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        private bool VerifyPassword(string password, string storedHash, string storedSalt)
+        {
+            byte[] salt = Convert.FromBase64String(storedSalt);
+            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, Iterations))
+            {
+                byte[] hash = pbkdf2.GetBytes(HashSize);
+                return Convert.ToBase64String(hash) == storedHash;
+            }
         }
 
         public async Task<(bool success, string message)> RegisterAsync(User user, string password)
@@ -28,8 +56,11 @@ namespace Survey.API.Services
                 return (false, "Bu email adresi zaten kullanılıyor.");
             }
 
-            using var hmac = new HMACSHA512();
-            user.PasswordHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
+            byte[] salt;
+            string hash = HashPassword(password, out salt);
+            
+            user.PasswordHash = hash;
+            user.PasswordSalt = Convert.ToBase64String(salt);
             
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -46,10 +77,7 @@ namespace Survey.API.Services
                 return (false, "Kullanıcı bulunamadı.");
             }
 
-            using var hmac = new HMACSHA512();
-            var computedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(password)));
-
-            if (user.PasswordHash != computedHash)
+            if (!VerifyPassword(password, user.PasswordHash, user.PasswordSalt))
             {
                 return (false, "Hatalı şifre.");
             }

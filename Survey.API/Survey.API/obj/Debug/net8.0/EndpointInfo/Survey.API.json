@@ -394,6 +394,44 @@
           }
         }
       }
+    },
+    "/api/Survey/votes/user": {
+      "get": {
+        "tags": [
+          "Survey"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VoteHistoryDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VoteHistoryDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VoteHistoryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -526,6 +564,16 @@
               "$ref": "#/components/schemas/SurveyOption"
             },
             "nullable": true
+          },
+          "votes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Vote"
+            },
+            "nullable": true
+          },
+          "createdByUser": {
+            "$ref": "#/components/schemas/User"
           }
         },
         "additionalProperties": false
@@ -548,6 +596,13 @@
           "surveyId": {
             "type": "integer",
             "format": "int32"
+          },
+          "votes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Vote"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -562,6 +617,39 @@
             "maxLength": 200,
             "minLength": 0,
             "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "User": {
+        "required": [
+          "email",
+          "role",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "username": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "additionalProperties": false
@@ -582,6 +670,62 @@
             "nullable": true
           },
           "role": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Vote": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "surveyId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "optionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "votedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "VoteHistoryDto": {
+        "type": "object",
+        "properties": {
+          "voteId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "votedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "surveyTitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "surveyDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "optionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdByUsername": {
             "type": "string",
             "nullable": true
           }

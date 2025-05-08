@@ -1,25 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 
 function Header() {
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const [user, setUser] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  let username = '';
-
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      username = payload?.username || payload?.name || '';
-    } catch (err) {
-      console.error('JWT parse hatası:', err);
-    }
-  }
-
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
     navigate('/login');
+  }, [navigate]);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (err) {
+        console.error('Kullanıcı bilgisi parse hatası:', err);
+        handleLogout();
+      }
+    }
+  }, [handleLogout]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
@@ -27,34 +35,63 @@ function Header() {
       <Link to="/" className="navbar-brand logo">
         🗳️ Anket Sistemi
       </Link>
-      <div className="collapse navbar-collapse">
+      
+      <button 
+        className="navbar-toggler" 
+        type="button" 
+        onClick={toggleMenu}
+        aria-label="Toggle navigation"
+      >
+        <span className="navbar-toggler-icon"></span>
+      </button>
+
+      <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
         <ul className="navbar-nav ms-auto align-items-center">
           <li className="nav-item">
-            <Link to="/" className="nav-link">Anketler</Link>
+            <Link to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+              Anketler
+            </Link>
           </li>
-          {token && (
+          
+          {user && (
             <>
               <li className="nav-item">
-                <Link to="/create" className="nav-link">+ Anket Oluştur</Link>
+                <Link to="/create" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                  + Anket Oluştur
+                </Link>
               </li>
               <li className="nav-item">
-                <Link to="/my-votes" className="nav-link">Oy Geçmişim</Link>
+                <Link to="/my-votes" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                  Oy Geçmişim
+                </Link>
               </li>
-              <li className="nav-item text-light mx-2">
-                Hoş geldin, <strong>{username}</strong>
+              <li className="nav-item user-info">
+                <span className="welcome-text">
+                  Hoş geldin, <strong>{user.username}</strong>
+                </span>
               </li>
               <li className="nav-item">
-                <button onClick={handleLogout} className="btn btn-outline-light btn-sm ms-2">Çıkış Yap</button>
+                <button 
+                  onClick={handleLogout} 
+                  className="btn btn-outline-light btn-sm ms-2 logout-btn"
+                >
+                  Çıkış Yap
+                </button>
               </li>
             </>
           )}
-          {!token && (
+          
+          {!user && (
             <>
               <li className="nav-item">
-                <Link to="/login" className="nav-link">Giriş Yap</Link>
+                <Link to="/login" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                  Giriş Yap
+                </Link>
               </li>
               <li className="nav-item">
-                <Link to="/register" className="nav-link">Kayıt Ol</Link>
+                <Link to="/register" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                  Kayıt Ol
+                </Link>
               </li>
             </>
           )}
