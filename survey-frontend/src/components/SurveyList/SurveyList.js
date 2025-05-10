@@ -20,11 +20,9 @@ function SurveyList() {
           const response = await api.get('/Auth/me', {
             headers: { Authorization: `Bearer ${token}` }
           });
-          console.log('Mevcut kullanıcı:', response.data); // Debug için
           setCurrentUser(response.data);
         }
       } catch (error) {
-        console.error('Kullanıcı bilgileri alınamadı:', error);
         setCurrentUser(null);
       }
     };
@@ -42,19 +40,13 @@ function SurveyList() {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log('Tüm anketler:', response.data); // Debug için
+        const filteredSurveys = response.data.filter(survey => 
+          survey.createdByUser?.id !== currentUser?.id
+        );
 
-        // Kendi oluşturduğumuz anketleri filtrele
-        const filteredSurveys = response.data.filter(survey => {
-          console.log('Anket oluşturan:', survey.createdByUser?.id, 'Mevcut kullanıcı:', currentUser?.id); // Debug için
-          return survey.createdByUser?.id !== currentUser?.id;
-        });
-
-        console.log('Filtrelenmiş anketler:', filteredSurveys); // Debug için
         setSurveys(filteredSurveys);
         setError('');
       } catch (error) {
-        console.error('Anketler alınamadı:', error);
         if (error.response?.status === 401) {
           setError('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
           setTimeout(() => navigate('/login'), 2000);
@@ -78,26 +70,17 @@ function SurveyList() {
         return;
       }
 
-      console.log('Oy verme isteği başlatılıyor...');
-      console.log('Survey ID:', surveyId);
-      console.log('Option ID:', optionId);
-
-      const response = await api.post(`/Survey/${surveyId}/vote`, { optionId }, {
+      await api.post(`/Survey/${surveyId}/vote`, { optionId }, {
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
-      console.log('Oy verme yanıtı:', response.data);
-
-      // Anketleri yeniden yükle
-      console.log('Anketler yeniden yükleniyor...');
       const surveysResponse = await api.get('/Survey', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Kendi oluşturduğumuz anketleri filtrele
       const filteredSurveys = surveysResponse.data.filter(survey => 
         survey.createdByUser?.id !== currentUser?.id
       );
@@ -105,8 +88,6 @@ function SurveyList() {
       setSurveys(filteredSurveys);
       setError('');
     } catch (error) {
-      console.error('Oy kullanılamadı:', error);
-      
       if (error.response?.status === 401) {
         setError('Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.');
         setTimeout(() => navigate('/login'), 2000);

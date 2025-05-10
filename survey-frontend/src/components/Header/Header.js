@@ -6,6 +6,7 @@ function Header() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
@@ -33,7 +34,7 @@ function Header() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-header px-4 py-3">
       <Link to="/" className="navbar-brand logo">
-        🗳️ Anket Sistemi
+        <i className="fas fa-poll"></i> Anket Sistemi
       </Link>
       
       <button 
@@ -49,34 +50,49 @@ function Header() {
         <ul className="navbar-nav ms-auto align-items-center">
           <li className="nav-item">
             <Link to="/" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-              Anketler
+              <i className="fas fa-list"></i> Anketler
             </Link>
           </li>
           
           {user && (
             <>
               <li className="nav-item">
+                <Link to="/my-surveys" className="nav-link" onClick={() => setIsMenuOpen(false)}>
+                  <i className="fas fa-clipboard-list"></i> Anketlerim
+                </Link>
+              </li>
+              <li className="nav-item">
                 <Link to="/create" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-                  + Anket Oluştur
+                  <i className="fas fa-plus"></i> Anket Oluştur
                 </Link>
               </li>
               <li className="nav-item">
                 <Link to="/my-votes" className="nav-link" onClick={() => setIsMenuOpen(false)}>
-                  Oy Geçmişim
+                  <i className="fas fa-history"></i> Oy Geçmişim
                 </Link>
               </li>
-              <li className="nav-item user-info">
-                <span className="welcome-text">
-                  Hoş geldin, <strong>{user.username}</strong>
-                </span>
-              </li>
-              <li className="nav-item">
+              <li className="nav-item user-menu">
                 <button 
-                  onClick={handleLogout} 
-                  className="btn btn-outline-light btn-sm ms-2 logout-btn"
+                  className="user-menu-btn"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 >
-                  Çıkış Yap
+                  <i className="fas fa-user-circle"></i>
+                  <span>Hoş geldin, {user.username}</span>
+                  <i className={`fas fa-chevron-${isUserMenuOpen ? 'up' : 'down'}`}></i>
                 </button>
+                
+                {isUserMenuOpen && (
+                  <div className="user-dropdown">
+                    <Link to="/profile" onClick={() => setIsUserMenuOpen(false)}>
+                      <i className="fas fa-user"></i>
+                      Hesabım
+                    </Link>
+                    <button onClick={handleLogout}>
+                      <i className="fas fa-sign-out-alt"></i>
+                      Çıkış Yap
+                    </button>
+                  </div>
+                )}
               </li>
             </>
           )}

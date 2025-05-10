@@ -6,6 +6,9 @@ import SurveyList from './components/SurveyList/SurveyList';
 import SurveyCreate from './components/SurveyCreate/SurveyCreate';
 import VoteHistory from './components/VoteHistory/VoteHistory';
 import Header from './components/Header/Header';
+import MySurveys from './components/MySurveys/MySurveys';
+import EditSurvey from './components/EditSurvey/EditSurvey';
+
 
 
 
@@ -19,7 +22,8 @@ function App() {
         <Route path="/" element={<SurveyList />} />
         <Route path="/create" element={<SurveyCreate />} />
         <Route path="/my-votes" element={<VoteHistory />} />
-
+        <Route path="/my-surveys" element={<MySurveys />} />
+        <Route path="/edit-survey/:id" element={<EditSurvey />} />
       </Routes>
     </Router>
   );
