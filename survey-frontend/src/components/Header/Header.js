@@ -77,7 +77,7 @@ function Header() {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 >
                   <i className="fas fa-user-circle"></i>
-                  <span>Hoş geldin, {user.username}</span>
+                  <span>{user.username}</span>
                   <i className={`fas fa-chevron-${isUserMenuOpen ? 'up' : 'down'}`}></i>
                 </button>
                 

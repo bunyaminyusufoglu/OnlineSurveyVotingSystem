@@ -129,13 +129,6 @@ function MySurveys() {
                     Görüntüle
                   </button>
                   <button 
-                    className="action-btn edit-btn"
-                    onClick={() => navigate(`/edit-survey/${survey.id}`)}
-                  >
-                    <i className="fas fa-edit"></i>
-                    Düzenle
-                  </button>
-                  <button 
                     className="action-btn delete-btn"
                     onClick={() => handleDeleteSurvey(survey.id)}
                   >
